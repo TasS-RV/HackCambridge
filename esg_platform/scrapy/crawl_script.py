@@ -24,6 +24,7 @@ def crawl_urls(urls):
 
 def crawl_query(query_str, max_crawl=None):
     urls = gdelt_query(query_str)
+    max_crawl = -1 if max_crawl == None else max_crawl
     if max_crawl > 0 and max_crawl <= len(urls):
         crawl_urls(urls[:max_crawl])
     else:

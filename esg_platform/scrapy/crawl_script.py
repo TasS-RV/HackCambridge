@@ -1,23 +1,13 @@
 from scrapy.crawler import CrawlerProcess
 from .esg_spider import ESGSpider
+from .crawler_settings import crawler_settings
 from esg_platform.sentiment_analysis.gdelt_query import gdelt_query
 import logging
 
 logger = logging.getLogger()
 
 def crawl_urls(urls):
-    process = CrawlerProcess(settings={
-        "BOT_NAME": "esgcrawlbot",
-        "USER_AGENT": "Mozilla/5.0 (X11; Linux x86_64; rv:7.0.1) Gecko/20100101 Firefox/7.7", # Random
-        "ROBOTSTXT_OBEY": False,
-        "CONCURRENT_REQUESTS": 32,
-        "CONCURRENT_ITEMS": 100,
-        "DOWNLOAD_DELAY": 0.26,
-        "COOKIES_ENABLED": False,
-        "ITEM_PIPELINES": {
-            "esg_platform.scrapy.item_pipelines.ESGCrawlPipeline": 100
-        }
-    })
+    process = CrawlerProcess(settings=crawler_settings)
 
     process.crawl(ESGSpider, urls=urls)
     process.start() # the script will block here until the crawling is finished

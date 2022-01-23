@@ -7,6 +7,6 @@ crawler_settings = {
     "DOWNLOAD_DELAY": 0.26,
     "COOKIES_ENABLED": False,
     "ITEM_PIPELINES": {
-        "esg_platform.scrapy.item_pipelines.ESGCrawlPipeline": 100
+        "susinvest_backend.scrapy.item_pipelines.ESGCrawlPipeline": 100
     }
 }

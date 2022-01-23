@@ -1,12 +1,12 @@
 import string
 import numpy as np
 from scipy.special import expit
-from .configs.weighted_corpus import corpus
+from .configs.weighted_corpus import corpus, normalise_factor
 
 class ESGCrawlPipeline:
 
     def __init__(self):
-        self.punctuation = string.punctuation.strip('"').strip("'")
+        self.punctuation = string.punctuation.strip('"').strip("'").strip('-')
         self.words = []
 
     def process_item(self, item, spider):
@@ -25,11 +25,11 @@ class ESGCrawlPipeline:
 
         score = 0 # Scoring the company
 
-        for k, v in corpus.items():
+        for k, v in corpus[spider.corpus].items():
             if k in word_counts:
                 score += word_counts[k] * v
 
-        score = expit(score)
+        score = expit(score/normalise_factor) # Sigmoid
 
         with open('score.txt', 'w') as f:
             f.write(str(score))

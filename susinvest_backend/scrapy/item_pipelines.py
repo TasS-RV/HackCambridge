@@ -1,7 +1,7 @@
 import string
 import numpy as np
 from scipy.special import expit
-from .configs.weighted_corpus import corpus, normalise_factor
+from .configs.weighted_corpus import corpus
 
 class ESGCrawlPipeline:
 
@@ -25,10 +25,11 @@ class ESGCrawlPipeline:
 
         score = 0 # Scoring the company
 
-        for k, v in corpus[spider.corpus].items():
+        for k, v in corpus[spider.corpus]["words"].items():
             if k in word_counts:
                 score += word_counts[k] * v
 
+        normalise_factor = corpus[spider.corpus]["normalise_factor"]
         score = expit(score/normalise_factor) # Sigmoid
 
         with open('score.txt', 'w') as f:

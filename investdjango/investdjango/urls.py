@@ -20,7 +20,7 @@ import debug_toolbar #Must be separately imported into conda environment
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('susinvest/', include('susinvest.urls')), #Tells django that all urls starting with susinvest should be handled by 
+    path('', include('susinvest.urls')), #Tells django that all urls starting with susinvest should be handled by 
     path('__debug__/', include(debug_toolbar.urls))
     #by the susinvest.urls file application
 ]

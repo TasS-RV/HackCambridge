@@ -1,6 +1,6 @@
 from scrapy.crawler import CrawlerProcess
 from .esg_spider import ESGSpider
-from .crawler_settings import crawler_settings
+from .configs.crawler_settings import crawler_settings
 from esg_platform.sentiment_analysis.gdelt_query import gdelt_query
 import logging
 

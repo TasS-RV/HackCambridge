@@ -6,20 +6,25 @@ from .models import ESGModel
 from django.shortcuts import render
 from django.http import HttpResponse
 from uuid import uuid4
+import threading
 
 import logging
 
 logger = logging.getLogger()
 
 def company_input(request):
+    event = threading.Event()
 
+    def callback(result):
+        event.set()
 
     key = 'company_query'
     if key in request.POST:
         logger.info('POST request received.')
         ESGModel.objects.all().delete()
         uid = str(uuid4())
-        crawl_query(request.POST[key], "environmental", uid)
+        crawl_query(request.POST[key], "environmental", uid, callbacks=[callback])
+        event.wait()
         try:
             item = ESGModel.objects.get(uid=uid)
             score_val = "{:.6f}".format(float(item.data)) #Rounding to 4 sf for score value
@@ -28,4 +33,3 @@ def company_input(request):
             logger.error('item failed')
 
     return render(request, 'index.html')
-

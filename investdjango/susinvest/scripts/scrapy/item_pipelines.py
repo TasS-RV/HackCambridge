@@ -3,7 +3,6 @@ import numpy as np
 from scipy.special import expit
 from .configs.weighted_corpus import corpus
 from ...models import ESGModel
-from twisted.internet import reactor
 
 import logging
 
@@ -45,7 +44,7 @@ class ESGCrawlPipeline:
 
         normalise_factor = corpus[spider.corpus]["normalise_factor"]
         score = expit(score/normalise_factor) # Sigmoid
-
+        
         try:
             item = ESGModel.objects.get(uid=self.uid)
         except:
@@ -54,3 +53,4 @@ class ESGCrawlPipeline:
         item.uid = self.uid
         item.data = str(score)
         item.save()
+        print('Finished writing.')

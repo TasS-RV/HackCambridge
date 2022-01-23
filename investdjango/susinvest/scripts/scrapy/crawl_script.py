@@ -1,23 +1,22 @@
 from scrapy.crawler import CrawlerRunner
-from twisted.internet import reactor
-from multiprocessing import Process, Queue
-from uuid import uuid4
+from crochet import setup
 from .esg_spider import ESGSpider
 from .configs.crawler_settings import crawler_settings
 from ..gdelt.gdelt_query import gdelt_query
 import logging
 
 logger = logging.getLogger()
+setup()
 
-def crawl_urls(urls, corpus, uid):
+def crawl_urls(urls, corpus, callbacks, uid):
     crawler_settings["uid"] = uid
+
     runner = CrawlerRunner(settings=crawler_settings)
+    deferred = runner.crawl(ESGSpider, urls=urls, corpus=corpus)
+    for callback in callbacks:
+        deferred.addBoth(callback)
 
-    deferred = runner.crawl(ESGSpider, urls=urls, corpus=corpus) # the script will block here until the crawling is finished
-    deferred.addBoth(lambda _: reactor.stop())
-    reactor.run(installSignalHandlers=False)
-
-def crawl_query(query_str, corpus='environmental', uid=0, max_crawl=None):
+def crawl_query(query_str, corpus='environmental', uid=0, callbacks=[], max_crawl=None):
     '''
     The main function of the backend. Returns a score for the query based on the corpus used.
 
@@ -32,9 +31,9 @@ def crawl_query(query_str, corpus='environmental', uid=0, max_crawl=None):
     max_crawl = -1 if max_crawl == None else max_crawl
     if max_crawl > 0 and max_crawl <= len(urls):
         logger.info('Begin crawl.')
-        crawl_urls(urls[:max_crawl], corpus, uid)
+        crawl_urls(urls[:max_crawl], corpus, callbacks, uid)
     else:
         if max_crawl > len(urls):
             logger.info("Max crawl exceeds URL list length. Defaulting to max_crawl=None.")
         logger.info('Begin crawl.')
-        crawl_urls(urls, corpus, uid)
+        crawl_urls(urls, corpus, callbacks, uid)

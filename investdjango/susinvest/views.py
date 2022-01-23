@@ -23,7 +23,7 @@ def company_input(request):
         try:
             item = ESGModel.objects.get(uid=uid)
             score_val = "{:.6f}".format(float(item.data)) #Rounding to 4 sf for score value
-            return render(request, 'result.html', {'score':item.data})
+            return render(request, 'results.html', {'score':item.data})
         except:
             logger.error('item failed')
 

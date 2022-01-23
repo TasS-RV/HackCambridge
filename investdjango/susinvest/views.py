@@ -23,6 +23,7 @@ def company_input(request):
             item = ESGModel.objects.get(uid=uid)
         except:
             logger.error('item failed')
-    
-    return render(request, 'index.html')
+
+    return render(request, 'result.html', {'score': item.data})
+    #return render(request, 'index.html')
 

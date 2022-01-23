@@ -2,6 +2,7 @@ import string
 import numpy as np
 from scipy.special import expit
 from .configs.weighted_corpus import corpus
+from twisted.internet import reactor
 
 class ESGCrawlPipeline:
 
@@ -32,6 +33,7 @@ class ESGCrawlPipeline:
         normalise_factor = corpus[spider.corpus]["normalise_factor"]
         score = expit(score/normalise_factor) # Sigmoid
 
-        with open('score.txt', 'w') as f:
-            f.write(str(score))
+        print(score)
+
+        reactor.stop()
         # data.save(score)

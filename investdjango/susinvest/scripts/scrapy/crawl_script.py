@@ -1,16 +1,17 @@
-from scrapy.crawler import CrawlerProcess
+from scrapy.crawler import CrawlerRunner
+from twisted.internet import reactor
 from .esg_spider import ESGSpider
 from .configs.crawler_settings import crawler_settings
-from susinvest_backend.sentiment_analysis.gdelt_query import gdelt_query
+from ..gdelt.gdelt_query import gdelt_query
 import logging
 
 logger = logging.getLogger()
 
 def crawl_urls(urls, corpus):
-    process = CrawlerProcess(settings=crawler_settings)
+    runner = CrawlerRunner(settings=crawler_settings)
 
-    process.crawl(ESGSpider, urls=urls, corpus=corpus)
-    process.start() # the script will block here until the crawling is finished
+    runner.crawl(ESGSpider, urls=urls, corpus=corpus) # the script will block here until the crawling is finished
+    reactor.run(installSignalHandlers=False)
 
 def crawl_query(query_str, corpus='environmental', max_crawl=None):
     '''
@@ -23,10 +24,13 @@ def crawl_query(query_str, corpus='environmental', max_crawl=None):
     max_crawl: Limits the number of GDELT articles crawled by the Scrapy spider. For debug purposes only.
     '''
     urls = gdelt_query(query_str)
+    logger.info('GDELT data received.')
     max_crawl = -1 if max_crawl == None else max_crawl
     if max_crawl > 0 and max_crawl <= len(urls):
+        logger.info('Begin crawl.')
         crawl_urls(urls[:max_crawl], corpus)
     else:
         if max_crawl > len(urls):
             logger.info("Max crawl exceeds URL list length. Defaulting to max_crawl=None.")
+        logger.info('Begin crawl.')
         crawl_urls(urls, corpus)

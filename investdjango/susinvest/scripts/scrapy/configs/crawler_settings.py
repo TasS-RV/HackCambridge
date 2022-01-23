@@ -7,6 +7,6 @@ crawler_settings = {
     "DOWNLOAD_DELAY": 0.26,
     "COOKIES_ENABLED": False,
     "ITEM_PIPELINES": {
-        "investdjango.susinvest.scripts.scrapy.item_pipelines.ESGCrawlPipeline": 100
+        "susinvest.scripts.scrapy.item_pipelines.ESGCrawlPipeline": 100
     }
 }

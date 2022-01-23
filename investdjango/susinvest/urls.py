@@ -5,7 +5,6 @@ from . import views
 #URL conf module - URL configuration 
 urlpatterns = [
 #No need to write it this way - as added on the main urls.py to redirect to thsi file    path('susinvest/greeting', views.say_hello())
-path('greeting/', views.say_hello),
 path('', views.company_input),
 path('home/', views.company_input)
 ]

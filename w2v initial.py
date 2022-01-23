@@ -129,8 +129,6 @@ class Categories:
 site = io.open(sitename, 'r', encoding='utf-8', newline='\n', errors='ignore') 
 
 
-
-
 dir = "C:\Users\retro\Documents\1Hack reservoir\Sitewords"
 for filename in os.listdir(r"{}".format(dir)):
     if filename.endswith(".txt"):
@@ -142,7 +140,7 @@ for filename in os.listdir(r"{}".format(dir)):
 
 
 
-#numpy.unique()
+#numpy.unique() Will count the number of occurences of each word
 
 
 #Generate a set of similar words associated with sustainability - based on preferences (set P)

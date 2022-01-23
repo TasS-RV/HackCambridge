@@ -17,6 +17,7 @@ from wolframclient.language import wl, wlexpr
 from gensim.test.utils import common_texts
 from gensim.models import Word2Vec
 import re
+import io
 
 def line_array(file):
     word_array = []
@@ -30,40 +31,30 @@ def line_array(file):
 with open(r'C:\Users\retro\Documents\1Hack reservoir\sustainability texts.txt', 'r') as csv:
     line_array  = line_array(csv)
     
-    
-    #Training with permutations of the sentences themselves? considering proximity, could we increase the length of the sentences
-    
-#Later - develop something to separate by full stops
-    #for n,line in enumerate(csv.readlines(),1):
-     #   if n > 15:
-      #      break
-       # print(n, line)
-
-    
-
-
-#Checking the sample of data
-for text in common_texts:
-    print(text)
-
 
 model = Word2Vec(sentences= line_array, vector_size=100, window=5, min_count=1, workers=4) #Tweak workers for the number of processors dedicated to the training
 model.save("sustainability.model") #Save to be able to load it up for re-training later
 
 model = Word2Vec.load("sustainability.model")
 
-
 ############### We put in a logical sentence which makes logical sense, and can be used to alter the weights of the words
 sentence = 'Sustainability is very important to save the environment'
+sent_list = [w.lower() for w in sentence.split(' ') if w.isalpha() == True]  #Can add sentence divided into list of words to add to training data
+print(sent_list)
 
-model.train([["hello", "world", "computer", "desktop"]], total_examples=1, epochs=1)
-#(0, 2)
+model.train(sent_list, total_examples=1, epochs=1)
+
+#1. Function that generates associated words  form preference words for each category
+
+
+
 vector = model.wv['secondary']  # get numpy vector of a word
 
-sims = model.wv.most_similar(positive = 'human', negative = 'trees', topn=10)  # get other similar words - positive is for closer matches, negative is for words farther away 
+sims = model.wv.most_similar(positive = 'life', topn=15)  # get other similar words - positive is for closer matches, negative is for words farther away 
 
 print("\n Similarity tuples:")
 
+#Checking the list of similar words
 for i in sims: #Note sims stores the words and the vector weighting as a tuple
     print(i)
 
@@ -77,16 +68,86 @@ word_vectors.save("sustainability.wordvectors")
 wv = KeyedVectors.load("sustainability.wordvectors", mmap='r')
 
 
+#Example: to print the vector positions of a limuted set of words:
+def sample_vectors(line_array):
+    for l_num, line in enumerate(line_array, 0): 
+        if l_num > 10:
+            break
+        for word in line: 
+            print('\n {}'.format(word))
+            print(wv[word])
 
-vector = wv['computer']  # Get numpy vector of a word - vector related to all other words
+sample_vectors(line_array)
+import itertools
 
-'''Tasks to complete now:
-Write the program to reaf file objects - then generate similar results
+def load_vectors(fname):
+    fin = io.open(fname, 'r', encoding='utf-8', newline='\n', errors='ignore')
+    n, d = map(int, fin.readline().split())
+    data = {}
+    for line in fin:
+        tokens = line.rstrip().split(' ')
+        data[tokens[0]] = map(float, tokens[1:])
+    return data
 
-Should not require training - rather, will be trained with a pre-loaded array of values for vector corpus
+fpath = r'C:\Users\retro\Documents\1Hack reservoir\samplevc.vec'
 
-Generate a greaphical representation in 2D of the proximity of the words
-'''
+#with open(r'C:\Users\retro\Documents\1Hack reservoir\samplevc.vec', 'r') as sample_vec:
+load_vectors = load_vectors(fpath)
 
 
+model = Word2Vec(sentences= line_array, vector_size=100, window=5, min_count=1, workers=4) #Tweak workers for the number of processors dedicated to the training
+model.save("sustainability.model") #Save to be able to load it up for re-training later
+
+sims = model.wv.most_similar(positive = 'life', topn=15)  # get other similar words - positive is for closer matches, negative is for words farther away 
+print(sims)
+
+
+##########################################################################################
+class Categories:
+    def __init__(self, industries, goal, regions, interests):
+        self.industries = industries[0]; self.industries_reject = industries[1] #List of 2, for industries of interest, industries of lower interest
+        self.goal = goal #Company ethos/ goals 
+        self.regions = regions 
+        self.technologies = interests #More general, associated with specific areas of industry (i.e. in vehicles, specifically in EV charging, EV battery coolant etc...)  
+        
+    @property
+    def industry_sims(self):
+        pos = [interest for interest in self.industries]
+        neg = [n_interest for n_interest in self.industries_reject]
+        sims  = model.wv.most_similar(positive = pos, negative = neg,topn = 15) #Check if positive and negative can take in a list rather than just a string 
+        return sims[:, 0] #First row extracted - of all similar words        
+   
+    @property
+    def goals_sim(self):
+        pos = [goal for goal in self.goals]
+        sims  = model.wv.most_similar(positive = pos,topn = 15) #Check if positive and negative can take in a list rather than just a string 
+        return sims[:, 0] #First row extracted - of all similar words        
+     
+    #Need to do for 2 more categories
+
+
+site = io.open(sitename, 'r', encoding='utf-8', newline='\n', errors='ignore') 
+
+
+
+
+dir = "C:\Users\retro\Documents\1Hack reservoir\Sitewords"
+for filename in os.listdir(r"{}".format(dir)):
+    if filename.endswith(".txt"):
+        with open(r"{}/{}".format(dir,filename), 'r') as sitefile:
+
+
+
+        #similarity matchup , generates reservour of vectors for industry
+
+
+
+#numpy.unique()
+
+
+#Generate a set of similar words associated with sustainability - based on preferences (set P)
+#Checks the maximum number of matches within the scraped vector of a website to give match 1.
+#OR
+#Alternatively: performs a similarity test with the vector from set P - by itertools (Set A)
+#Complexity order 2?
 

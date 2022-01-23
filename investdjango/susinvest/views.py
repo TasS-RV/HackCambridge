@@ -13,7 +13,6 @@ logger = logging.getLogger()
 
 def company_input(request):
 
-
     key = 'company_query'
     if key in request.POST:
         logger.info('POST request received.')

@@ -9,13 +9,28 @@ import logging
 
 logger = logging.getLogger()
 
+# For multi-processing (and running the reactor more than once)
+def crawl_core(q, urls, corpus):
+    try:
+        runner = CrawlerRunner(settings=crawler_settings)
+        deferred = runner.crawl(ESGSpider, urls=urls, corpus=corpus)
+        deferred.addBoth(lambda _: reactor.stop())
+        reactor.run()#installSignalHandlers=False)
+        q.put(None)
+    except Exception as e:
+        q.put(e)
+
 def crawl_urls(urls, corpus, uid):
     crawler_settings["uid"] = uid
-    runner = CrawlerRunner(settings=crawler_settings)
 
-    deferred = runner.crawl(ESGSpider, urls=urls, corpus=corpus) # the script will block here until the crawling is finished
-    deferred.addBoth(lambda _: reactor.stop())
-    reactor.run(installSignalHandlers=False)
+    q = Queue()
+    p = Process(target=crawl_core, args=(q, urls, corpus,))
+    p.start()
+    result = q.get()
+    p.join()
+
+    if result is not None:
+        raise result
 
 def crawl_query(query_str, corpus='environmental', uid=0, max_crawl=None):
     '''

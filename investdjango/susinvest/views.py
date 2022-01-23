@@ -26,10 +26,9 @@ def company_input(request):
         crawl_query(request.POST[key], "environmental", uid, callbacks=[callback])
         event.wait()
         try:
-            print(ESGModel.objects.all())
             item = ESGModel.objects.get(uid=uid)
-            print(item)
-            return render(request, 'index.html', {'score': item.data})
+            score_val = "{:.6f}".format(float(item.data)) #Rounding to 4 sf for score value
+            return render(request, 'results.html', {'score':item.data})
         except:
             logger.error('item failed')
 

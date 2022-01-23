@@ -1,4 +1,15 @@
+<h1>Please enter company details</h1>
+<form action="" method="post">
+    {% csrf_token %}
+    <label for="company_query">Enter company: </label>
+    <input id="company_query" type="text" name="company_query" placeholder="Apple">
+    <input type="submit" value="OK">
+</form>
 
-<h1>The company environmental score is:</h1>
-
-<div>Result is: {{score}}</div>
+<body>
+    {% if score %}
+    <p style="font-size:45px"><b>Result: {{score}}</b></p>
+    {% else %} 
+    <p style="font-size:45px"><b>Invalid query!</b></p>  
+    {% endif %}
+</body>
